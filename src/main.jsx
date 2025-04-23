@@ -6,24 +6,34 @@ import './index.css';
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('Service Worker registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.log('Service Worker registration failed: ', registrationError);
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      });
+      console.log('Service Worker registered with scope:', registration.scope);
+      
+      // Force update check on each page load
+      registration.update();
+      
+      // Handle installation event
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Store the event so it can be triggered later
+        window.deferredPrompt = e;
+        console.log('Install prompt captured and ready');
       });
       
-    // Add a custom install button if needed
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
-      e.preventDefault();
-      // Stash the event so it can be triggered later
-      window.deferredPrompt = e;
-      // Update UI to show install button if desired
-      console.log('App can be installed, showing install button');
-    });
+      // Track installation success
+      window.addEventListener('appinstalled', (evt) => {
+        console.log('App was installed successfully');
+      });
+      
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+    }
   });
 }
 
