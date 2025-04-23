@@ -1,68 +1,18 @@
-const CACHE_NAME = 'jerk-n-thyme-pos-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
-  '/logo192.png',
-  '/jamaican-flag-colors.png'
-];
-
-// Install event - cache assets
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Opened cache');
-      return cache.addAll(urlsToCache);
-    })
-  );
+// Basic Service Worker
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // Delete old caches
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+self.addEventListener('activate', (event) => {
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache if available, otherwise fetch and cache
-self.addEventListener('fetch', event => {
+// Fetch handler with basic caching
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      // Cache hit - return response
-      if (response) {
-        return response;
-      }
-      
-      // Clone the request - request is a stream and can only be consumed once
-      const fetchRequest = event.request.clone();
-      
-      return fetch(fetchRequest).then(response => {
-        // Check if valid response
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        
-        // Clone the response
-        const responseToCache = response.clone();
-        
-        // Cache the fetched response
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        
-        return response;
-      });
-    })
+    fetch(event.request)
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });

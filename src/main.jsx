@@ -4,9 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css';
 
-// Simple service worker registration without complex event handling
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+// Register service worker only after React has loaded
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(registration => {
         console.log('Service Worker registered successfully');
@@ -14,13 +22,5 @@ if ('serviceWorker' in navigator) {
       .catch(error => {
         console.error('Service Worker registration failed:', error);
       });
-  });
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
-);
+  }
+});

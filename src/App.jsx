@@ -4,23 +4,12 @@ import { AppProvider } from './context/AppContext';
 import POS from './pages/POS';
 import Admin from './pages/Admin';
 
+// Simplest possible App component
 function App() {
-  // Simple authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('isAuthenticated') === 'true';
-  });
-
-  // Function to handle login
-  const handleLogin = () => {
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.setItem('isAuthenticated', 'false');
-    setIsAuthenticated(false);
-  };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  const handleLogin = () => setIsAuthenticated(true);
+  const handleLogout = () => setIsAuthenticated(false);
 
   return (
     <AppProvider>
@@ -39,6 +28,5 @@ function App() {
     </AppProvider>
   );
 }
-
 
 export default App;
