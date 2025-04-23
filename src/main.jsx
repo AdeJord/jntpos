@@ -14,6 +14,16 @@ if ('serviceWorker' in navigator) {
       .catch(registrationError => {
         console.log('Service Worker registration failed: ', registrationError);
       });
+      
+    // Add a custom install button if needed
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      window.deferredPrompt = e;
+      // Update UI to show install button if desired
+      console.log('App can be installed, showing install button');
+    });
   });
 }
 
