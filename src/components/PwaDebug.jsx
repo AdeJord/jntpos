@@ -54,7 +54,7 @@ const PwaDebug = () => {
     setDebugInfo(prev => ({
       ...prev,
       isStandalone,
-      serviceWorker,
+      serviceWorker: serviceWorkerStatus,
       installPromptSupported,
       displayMode: currentDisplayMode,
       manifestPresent
