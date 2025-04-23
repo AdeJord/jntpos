@@ -22,43 +22,14 @@ const {
 } = useContext(AppContext);
 
 // Admin password modal state
+// Only create the state and handler for install prompt
+// but don't attempt to use it in the component for now
 const [installPrompt, setInstallPrompt] = useState(null);
 
-// Capture the install prompt event
-useEffect(() => {
-  const handleBeforeInstallPrompt = (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later
-    setInstallPrompt(e);
-  };
-
-  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  
-  return () => {
-    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  };
-}, []);
-
-// Handle installation button click
 const handleInstallClick = () => {
-  if (!installPrompt) {
-    alert('Installation not available. Please make sure you are using a supported browser and the site is not already installed.');
-    return;
+  if (installPrompt) {
+    installPrompt.prompt();
   }
-  
-  // Show the installation prompt
-  installPrompt.prompt();
-  
-  // Wait for the user to respond to the prompt
-  installPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    } else {
-      console.log('User dismissed the install prompt');
-    }
-    setInstallPrompt(null);
-  });
 };
 
 // Filter menu items by active category
@@ -91,37 +62,22 @@ return (
     <header className="header">
       <h1 className="logo">Jerk n Thyme</h1>
       <p className="tagline">Authentic Jamaican Cuisine</p>
-      <div style={{ position: 'absolute', right: '1rem', top: '1rem', display: 'flex', gap: '0.5rem' }}>
-        {installPrompt && (
-          <button 
-            style={{ 
-              backgroundColor: '#FFFF00',
-              color: '#000000',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}
-            onClick={handleInstallClick}
-          >
-            Install App
-          </button>
-        )}
-        <button 
-          className="admin-access-btn"
-          style={{ 
-            backgroundColor: '#333',
-            color: 'white',
-            border: 'none',
-            padding: '0.5rem 1rem',
-            borderRadius: '4px'
-          }}
-          onClick={handleAdminAccess}
-        >
-          Admin Access
-        </button>
-      </div>
+      <button 
+        className="admin-access-btn"
+        style={{ 
+          position: 'absolute', 
+          right: '1rem', 
+          top: '1rem',
+          backgroundColor: '#333',
+          color: 'white',
+          border: 'none',
+          padding: '0.5rem 1rem',
+          borderRadius: '4px'
+        }}
+        onClick={handleAdminAccess}
+      >
+        Admin Access
+      </button>
     </header>
 
     <div className="main-content">

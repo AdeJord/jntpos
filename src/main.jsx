@@ -4,36 +4,16 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css';
 
-// Register service worker for PWA
+// Simple service worker registration without complex event handling
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
-        updateViaCache: 'none'
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('Service Worker registered successfully');
+      })
+      .catch(error => {
+        console.error('Service Worker registration failed:', error);
       });
-      console.log('Service Worker registered with scope:', registration.scope);
-      
-      // Force update check on each page load
-      registration.update();
-      
-      // Handle installation event
-      window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Store the event so it can be triggered later
-        window.deferredPrompt = e;
-        console.log('Install prompt captured and ready');
-      });
-      
-      // Track installation success
-      window.addEventListener('appinstalled', (evt) => {
-        console.log('App was installed successfully');
-      });
-      
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-    }
   });
 }
 
