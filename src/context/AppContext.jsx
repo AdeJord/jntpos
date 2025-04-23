@@ -108,35 +108,73 @@ export const AppProvider = ({ children }) => {
     setMenuItems(menuItems.filter(item => item.id !== itemId));
   };
 
-  // Export orders to CSV
+  // Export orders to CSV with improved format
   const exportOrdersToCSV = () => {
     if (orders.length === 0) return '';
     
-    // Create headers
-    const headers = ['Order ID', 'Date', 'Time', 'Items', 'Total'];
+    // Create better headers
+    const headers = [
+      'Order ID',
+      'Date',
+      'Time',
+      'Item Name',
+      'Quantity',
+      'Price Each',
+      'Item Total',
+      'Order Total'
+    ];
     
-    // Create rows
-    const rows = orders.map(order => {
+    // Create expanded rows with one item per row for better analysis
+    const rows = [];
+    
+    orders.forEach(order => {
       const date = new Date(order.timestamp);
       const dateString = date.toLocaleDateString();
       const timeString = date.toLocaleTimeString();
-      const itemsString = order.items.map(item => 
-        `${item.name} (${item.quantity})`
-      ).join(', ');
       
-      return [
-        order.id,
-        dateString,
-        timeString,
-        itemsString,
-        `£${order.total.toFixed(2)}`
-      ];
+      // For each order, create multiple rows (one per item)
+      order.items.forEach((item, index) => {
+        const row = [
+          order.id,
+          dateString,
+          timeString,
+          item.name,
+          item.quantity,
+          `£${parseFloat(item.price).toFixed(2)}`,
+          `£${(parseFloat(item.price) * item.quantity).toFixed(2)}`,
+        ];
+        
+        // Only include the order total on the first item row for each order
+        if (index === 0) {
+          row.push(`£${order.total.toFixed(2)}`);
+        } else {
+          row.push(''); // Empty cell for subsequent items in the same order
+        }
+        
+        rows.push(row);
+      });
+      
+      // Add a blank row between orders for better readability
+      rows.push(Array(headers.length).fill(''));
     });
+    
+    // Remove the last empty row
+    if (rows.length > 0) {
+      rows.pop();
+    }
     
     // Combine headers and rows
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => {
+        // Properly escape fields with commas
+        return row.map(field => {
+          if (field && typeof field === 'string' && (field.includes(',') || field.includes('"'))) {
+            return `"${field.replace(/"/g, '""')}"`;
+          }
+          return field;
+        }).join(',');
+      })
     ].join('\n');
     
     return csvContent;

@@ -20,9 +20,15 @@ const ExportOrdersButton = () => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     
-    // Set up download link
+    // Set up download link with more descriptive filename
+    const dateStr = new Date().toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\//g, '-');
+    
     link.setAttribute('href', url);
-    link.setAttribute('download', `orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `jerk_n_thyme_orders_${dateStr}.csv`);
     link.style.visibility = 'hidden';
     
     // Add to document, click, and remove
